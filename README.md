@@ -1,6 +1,6 @@
 # Justin Pham - Portfolio
 
-My personal portfolio website showcasing my projects and skills as a Computer Science student at University of Louisville.
+My personal portfolio website showcasing my projects and skills as a Computer Science and Engineering student at University of Louisville.
 
 ## Live Site
 
