@@ -1,10 +1,22 @@
-export const skills = [
-  { name: "Python", level: 90 },
-  { name: "C/C++", level: 85 },
-  { name: "Java", level: 75 },
-  { name: "JavaScript", level: 70 },
-  { name: "SQL", level: 70 },
-  { name: "HTML/CSS", level: 75 },
-  { name: "Git/GitHub", level: 80 },
-  { name: "Linux", level: 75 }
+export const skillGroups = [
+  {
+    domain: "Systems",
+    skills: ["C", "C++", "Linux", "Assembly", "Valgrind"]
+  },
+  {
+    domain: "Web",
+    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"]
+  },
+  {
+    domain: "AI / ML",
+    skills: ["OpenAI", "Anthropic", "Gemini", "RAG", "Embeddings"]
+  },
+  {
+    domain: "Data",
+    skills: ["PostgreSQL", "Supabase", "pgvector", "pandas"]
+  },
+  {
+    domain: "Tools",
+    skills: ["Git", "Vercel", "Vitest", "Playwright"]
+  }
 ];

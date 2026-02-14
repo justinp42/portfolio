@@ -1,258 +1,195 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { FaGithub, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
+import React, { useState, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const sectionRef = useRef(null);
+  const formRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const [status, setStatus] = useState('idle'); // idle | sending | success | error
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    from_name: '',
+    reply_to: '',
+    message: '',
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
-  };
+    setStatus('sending');
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
+    const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+    const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      console.log('EmailJS not configured. Form data:', formData);
+      setStatus('success');
+      setFormData({ from_name: '', reply_to: '', message: '' });
+      setTimeout(() => setStatus('idle'), 3000);
+      return;
+    }
+
+    try {
+      await emailjs.sendForm(serviceId, templateId, formRef.current, publicKey);
+      setStatus('success');
+      setFormData({ from_name: '', reply_to: '', message: '' });
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const contactInfo = [
-    {
-      icon: FaEnvelope,
-      title: 'Email',
-      value: 'jhpham05@gmail.com',
-      link: 'mailto:jhpham05@gmail.com'
-    },
-    {
-      icon: FaPhone,
-      title: 'Phone',
-      value: '502.612.4626',
-      link: 'tel:+15026124626'
-    },
-    {
-      icon: FaMapMarkerAlt,
-      title: 'Location',
-      value: 'Louisville, Kentucky',
-      link: null
-    }
-  ];
-
-  const socialLinks = [
-    {
-      icon: FaGithub,
-      label: 'GitHub',
-      url: 'https://github.com/justinp42',
-      color: 'hover:text-gray-800'
-    },
-    {
-      icon: FaLinkedin,
-      label: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/justinpham5/',
-      color: 'hover:text-blue-600'
-    },
-    {
-      icon: FaEnvelope,
-      label: 'Email',
-      url: 'mailto:jhpham05@gmail.com',
-      color: 'hover:text-red-500'
-    }
+  const fields = [
+    { name: 'from_name', label: 'Name', type: 'text', placeholder: 'Your name' },
+    { name: 'reply_to', label: 'Email', type: 'email', placeholder: 'you@example.com' },
   ];
 
   return (
-    <section id="contact" className="section-padding bg-warm-cream/20">
+    <section id="contact" ref={sectionRef} className="section-padding bg-warm-linen">
       <div className="container-custom">
-        <motion.div
-          ref={ref}
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="max-w-6xl mx-auto"
-        >
-          {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-              Get In Touch
-            </h2>
-            <div className="w-24 h-1 bg-sage mx-auto rounded-full mb-6"></div>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              I'm always open to discussing new opportunities, collaborations, or just connecting.
-              Feel free to reach out!
-            </p>
-          </motion.div>
+        <div className="max-w-6xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5 }}
+            className="section-label"
+          >
+            Contact
+          </motion.p>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <motion.div variants={itemVariants} className="space-y-8">
-              <div>
-                <h3 className="text-2xl font-semibold text-gray-800 mb-6">
-                  Let's Connect
-                </h3>
-                <p className="text-gray-600 leading-relaxed mb-8">
-                  Whether you have a project in mind, want to collaborate, or just want to say hello, 
-                  I'd love to hear from you. Feel free to reach out through any of the channels below.
-                </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            {/* Copy */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <h2 className="font-heading text-4xl font-bold text-espresso mb-6">
+                Let's build something together
+              </h2>
+              <p className="font-serif text-lg text-warm-dark leading-relaxed mb-10">
+                I'm always open to new opportunities, interesting projects, and good
+                conversations. Whether you have something specific in mind or just want
+                to say hello — I'd love to hear from you.
+              </p>
+
+              <div className="space-y-3 font-mono text-sm">
+                <a
+                  href="mailto:jhpham05@gmail.com"
+                  className="block text-warm-dark underline-grow hover:text-sage transition-colors w-fit"
+                >
+                  jhpham05@gmail.com
+                </a>
+                <a
+                  href="https://github.com/justinp42"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-warm-dark underline-grow hover:text-sage transition-colors w-fit"
+                >
+                  GitHub
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/justinpham5/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-warm-dark underline-grow hover:text-sage transition-colors w-fit"
+                >
+                  LinkedIn
+                </a>
               </div>
+            </motion.div>
 
-              {/* Contact Info Cards */}
-              <div className="space-y-4">
-                {contactInfo.map((info, index) => (
+            {/* Form */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+                {fields.map((field, i) => (
                   <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.02 }}
-                    className="card p-4 flex items-center space-x-4"
+                    key={field.name}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.4, delay: 0.4 + i * 0.05 }}
                   >
-                    <div className="p-3 bg-sage/10 rounded-lg">
-                      <info.icon className="text-sage" size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800">{info.title}</h4>
-                      {info.link ? (
-                        <a
-                          href={info.link}
-                          className="text-sage hover:text-sage/80 transition-colors"
-                        >
-                          {info.value}
-                        </a>
-                      ) : (
-                        <p className="text-gray-600">{info.value}</p>
-                      )}
-                    </div>
+                    <label
+                      htmlFor={field.name}
+                      className="block font-mono text-sm text-clay mb-2"
+                    >
+                      {field.label}
+                    </label>
+                    <input
+                      type={field.type}
+                      id={field.name}
+                      name={field.name}
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      required
+                      placeholder={field.placeholder}
+                      className="w-full px-4 py-3 bg-cream border border-straw rounded-lg font-serif text-warm-dark placeholder:text-clay/50 focus:outline-none focus:ring-2 focus:ring-sage focus:border-transparent transition-all duration-200"
+                    />
                   </motion.div>
                 ))}
-              </div>
 
-              {/* Social Links */}
-              <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Follow Me
-                </h4>
-                <div className="flex space-x-4">
-                  {socialLinks.map((social, index) => (
-                    <motion.a
-                      key={index}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      whileTap={{ scale: 0.9 }}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`p-3 bg-soft-white rounded-lg text-gray-600 transition-colors duration-300 ${social.color}`}
-                      title={social.label}
-                    >
-                      <social.icon size={24} />
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Contact Form */}
-            <motion.div variants={itemVariants}>
-              <div className="card p-8">
-                <h3 className="text-2xl font-semibold text-gray-800 mb-6">
-                  Send a Message
-                </h3>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Name
-                    </label>
-                    <motion.input
-                      whileFocus={{ scale: 1.02 }}
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage focus:border-transparent transition-all duration-300"
-                      placeholder="Your name"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <motion.input
-                      whileFocus={{ scale: 1.02 }}
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage focus:border-transparent transition-all duration-300"
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      Message
-                    </label>
-                    <motion.textarea
-                      whileFocus={{ scale: 1.02 }}
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage focus:border-transparent transition-all duration-300 resize-none"
-                      placeholder="Tell me about your project or just say hello!"
-                    />
-                  </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="submit"
-                    className="w-full btn-primary flex items-center justify-center space-x-2"
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.5 }}
+                >
+                  <label
+                    htmlFor="message"
+                    className="block font-mono text-sm text-clay mb-2"
                   >
-                    <FaPaperPlane />
-                    <span>Send Message</span>
-                  </motion.button>
-                </form>
-              </div>
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    rows={5}
+                    placeholder="Tell me about your project or just say hello"
+                    className="w-full px-4 py-3 bg-cream border border-straw rounded-lg font-serif text-warm-dark placeholder:text-clay/50 focus:outline-none focus:ring-2 focus:ring-sage focus:border-transparent transition-all duration-200 resize-none"
+                  />
+                </motion.div>
+
+                <motion.button
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.55 }}
+                  type="submit"
+                  disabled={status === 'sending'}
+                  className="w-full bg-sage text-white py-3 px-6 rounded-lg font-mono text-sm font-medium transition-all duration-300 hover:bg-sage-dark hover:shadow-md disabled:opacity-60"
+                >
+                  {status === 'idle' && 'Send message'}
+                  {status === 'sending' && (
+                    <motion.span
+                      animate={{ opacity: [1, 0.5, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      Sending...
+                    </motion.span>
+                  )}
+                  {status === 'success' && (
+                    <span className="text-white">Message sent!</span>
+                  )}
+                  {status === 'error' && (
+                    <span className="text-white">Something went wrong — try again</span>
+                  )}
+                </motion.button>
+              </form>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -6,37 +6,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        sage: '#A8BBA4',
-        'soft-white': '#FAFAF7',
-        'warm-cream': '#F2E8CF',
+        sage: {
+          DEFAULT: '#A8BBA4',
+          dark: '#6B7F68',
+          mist: '#E8F0E6',
+        },
+        'warm-linen': '#FAF6F1',
+        cream: '#FFF9F2',
+        espresso: '#2C2318',
+        'warm-dark': '#4A3F35',
+        clay: '#8C7E72',
+        'burnt-clay': '#B86B4A',
+        straw: '#E8DFD4',
       },
       fontFamily: {
-        'inter': ['Inter', 'sans-serif'],
-        'poppins': ['Poppins', 'sans-serif'],
-      },
-      animation: {
-        'fade-up': 'fadeUp 0.6s ease-out',
-        'fade-in': 'fadeIn 0.8s ease-out',
-        'slide-in-left': 'slideInLeft 0.6s ease-out',
-        'slide-in-right': 'slideInRight 0.6s ease-out',
-      },
-      keyframes: {
-        fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(30px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideInLeft: {
-          '0%': { opacity: '0', transform: 'translateX(-30px)' },
-          '100%': { opacity: '1', transform: 'translateX(0)' },
-        },
-        slideInRight: {
-          '0%': { opacity: '0', transform: 'translateX(30px)' },
-          '100%': { opacity: '1', transform: 'translateX(0)' },
-        },
+        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
     },
   },
